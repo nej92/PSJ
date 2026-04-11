@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  medias    Media[]
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  type        String   // "MOVIE", "TV_SERIES", "VIDEO_GAME", "ANIME"
+  title       String
+  releaseYear Int?
+  coverImage  String?
+  rating      Int?     // 1-5
+  isFavorite  Boolean  @default(false)
+  toWatch     Boolean? // applicable for movies/series/anime
+  genre       String?
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
