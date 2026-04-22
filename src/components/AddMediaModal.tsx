@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { addMediaAction } from '@/actions/media';
+import { normalizeText } from '@/lib/normalize';
 import { X } from 'lucide-react';
 
 export default function AddMediaModal({ defaultType, onClose }: { defaultType: string, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [genre, setGenre] = useState('');
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -13,6 +15,11 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
     setLoading(false);
     onClose();
   }
+
+  const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeText(e.target.value);
+    setGenre(normalized);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -48,7 +55,7 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
 
           <div className="form-group">
             <label className="form-label">Genre</label>
-            <input type="text" name="genre" className="form-input" placeholder="e.g. Action, Sci-Fi, RPG" />
+            <input type="text" name="genre" className="form-input" placeholder="e.g. Action, Sci-Fi, RPG" value={genre} onChange={handleGenreChange} />
           </div>
 
           <div className="form-group">

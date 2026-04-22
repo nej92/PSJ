@@ -1,6 +1,6 @@
 'use client';
 
-import { Star, Heart, Trash2, Eye, EyeOff, Edit2 } from 'lucide-react';
+import { Star, Heart, Trash2, Eye, EyeOff, Edit2, Search } from 'lucide-react';
 import { deleteMediaAction, toggleFavoriteAction, toggleWatchAction } from '@/actions/media';
 import { Media } from '@prisma/client';
 import { useState } from 'react';
@@ -57,6 +57,17 @@ export default function MediaCard({ media }: { media: Media }) {
               title="Delete"
             >
               <Trash2 size={18} />
+            </button>
+
+            <button 
+              className="action-btn"
+              onClick={() => {
+                const searchQuery = encodeURIComponent(`donde ver ${media.title}`);
+                window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
+              }}
+              title="Where to watch"
+            >
+              <Search size={18} />
             </button>
           </div>
         </div>

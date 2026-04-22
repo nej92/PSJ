@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
+import { normalizeText } from '@/lib/normalize';
 import { revalidatePath } from 'next/cache';
 
 export async function addMediaAction(prevState: any, formData: FormData) {
@@ -15,7 +16,7 @@ export async function addMediaAction(prevState: any, formData: FormData) {
   const rating = formData.get('rating') ? parseInt(formData.get('rating') as string, 10) : null;
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
-  const genre = formData.get('genre') as string || null;
+  const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
 
   if (!title || !type) return { error: 'Title and type are required' };
 
@@ -89,7 +90,7 @@ export async function updateMediaAction(id: string, formData: FormData) {
   const rating = formData.get('rating') ? parseInt(formData.get('rating') as string, 10) : null;
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
-  const genre = formData.get('genre') as string || null;
+  const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
 
   if (!title) return { error: 'Title is required' };
 

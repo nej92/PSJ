@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { updateMediaAction } from '@/actions/media';
+import { normalizeText } from '@/lib/normalize';
 import { X } from 'lucide-react';
 import { Media } from '@prisma/client';
 
 export default function EditMediaModal({ media, onClose }: { media: Media, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [genre, setGenre] = useState(media.genre || '');
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -14,6 +16,11 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
     setLoading(false);
     onClose();
   }
+
+  const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeText(e.target.value);
+    setGenre(normalized);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -44,7 +51,7 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
 
           <div className="form-group">
             <label className="form-label">Genre</label>
-            <input type="text" name="genre" className="form-input" placeholder="e.g. Action, Sci-Fi, RPG" defaultValue={media.genre || ''} />
+            <input type="text" name="genre" className="form-input" placeholder="e.g. Action, Sci-Fi, RPG" value={genre} onChange={handleGenreChange} />
           </div>
 
           <div className="form-group">
