@@ -14,5 +14,5 @@ export default async function GamesPage() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return <MediaSection title="My Video Games" defaultType="VIDEO_GAME" medias={games} />;
+  return <MediaSection title="Mis Videojuegos" defaultType="VIDEO_GAME" medias={games} />;
 }

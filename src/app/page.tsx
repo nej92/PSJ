@@ -24,8 +24,8 @@ export default async function Home() {
   return (
     <div className="fade-in">
       <div style={{marginBottom: '3rem', marginTop: '2rem'}}>
-        <h1 className="section-title" style={{fontSize: '2.5rem', marginBottom: '0.5rem'}}>Welcome back, {user?.name || 'User'}!</h1>
-        <p style={{color: 'var(--text-secondary)', fontSize: '1.1rem'}}>Manage your personal catalog of Movies, TV Series, Games, and Animes.</p>
+        <h1 className="section-title" style={{fontSize: '2.5rem', marginBottom: '0.5rem'}}>¡Bienvenido de nuevo, {user?.name || 'Usuario'}!</h1>
+        <p style={{color: 'var(--text-secondary)', fontSize: '1.1rem'}}>Administra tu catálogo personal de Películas, Series, Juegos y Animes.</p>
       </div>
 
       <div style={{display: 'flex', gap: '1.5rem', marginBottom: '3rem', flexWrap: 'wrap'}}>
@@ -35,24 +35,24 @@ export default async function Home() {
         </Link>
         <Link href="/games" className="btn btn-primary" style={{flex: 1, minWidth: '250px', padding: '2rem 1rem', fontSize: '1.2rem', justifyContent: 'center', flexDirection: 'column', gap: '1rem'}}>
           <Gamepad2 size={32} />
-          Games
+          Videojuegos
         </Link>
         <Link href="/movies" className="btn btn-primary" style={{flex: 1, minWidth: '250px', padding: '2rem 1rem', fontSize: '1.2rem', justifyContent: 'center', flexDirection: 'column', gap: '1rem'}}>
           <Film size={32} />
-          Movies
+          Películas
         </Link>
         <Link href="/series" className="btn btn-primary" style={{flex: 1, minWidth: '250px', padding: '2rem 1rem', fontSize: '1.2rem', justifyContent: 'center', flexDirection: 'column', gap: '1rem'}}>
           <Tv size={32} />
-          TV Series
+          Series
         </Link>
       </div>
 
       <div>
-        <h2 className="section-title" style={{marginBottom: '1.5rem'}}>Recently Added</h2>
+        <h2 className="section-title" style={{marginBottom: '1.5rem'}}>Recientemente agregado</h2>
         {recentMedia.length === 0 ? (
           <div style={{textAlign: 'center', padding: '3rem', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-            <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>You haven't added any media yet.</p>
-            <Link href="/movies" className="btn btn-primary">Start adding items</Link>
+            <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>Aún no has agregado contenido.</p>
+            <Link href="/movies" className="btn btn-primary">Comienza agregando contenido</Link>
           </div>
         ) : (
           <div className="media-grid">

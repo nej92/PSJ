@@ -14,5 +14,5 @@ export default async function MoviesPage() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return <MediaSection title="My Movies" defaultType="MOVIE" medias={movies} />;
+  return <MediaSection title="Mis Películas" defaultType="MOVIE" medias={movies} />;
 }

@@ -27,6 +27,9 @@ model Media {
   isFavorite  Boolean  @default(false)
   toWatch     Boolean? // applicable for movies/series/anime
   genre       String?
+  actor       String?
+  director    String?
+  developer   String?
   
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)

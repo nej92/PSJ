@@ -14,5 +14,5 @@ export default async function AnimesPage() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return <MediaSection title="My Animes" defaultType="ANIME" medias={animes} />;
+  return <MediaSection title="Mis Animes" defaultType="ANIME" medias={animes} />;
 }

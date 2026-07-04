@@ -3,8 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Media Tracker",
-  description: "Personal multimedia content management",
+  title: "Control de Medios",
+  description: "Administración personal de multimedia",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>
         <div className="app-container fade-in">
           <Navbar />

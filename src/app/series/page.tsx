@@ -14,5 +14,5 @@ export default async function SeriesPage() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return <MediaSection title="My TV Series" defaultType="TV_SERIES" medias={series} />;
+  return <MediaSection title="Mis Series" defaultType="TV_SERIES" medias={series} />;
 }

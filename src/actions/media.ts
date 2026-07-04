@@ -17,6 +17,9 @@ export async function addMediaAction(prevState: any, formData: FormData) {
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
   const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
+  const actor = formData.get('actor') ? formData.get('actor') as string : null;
+  const director = formData.get('director') ? formData.get('director') as string : null;
+  const developer = formData.get('developer') ? formData.get('developer') as string : null;
 
   if (!title || !type) return { error: 'Title and type are required' };
 
@@ -31,7 +34,10 @@ export async function addMediaAction(prevState: any, formData: FormData) {
         rating,
         isFavorite,
         toWatch,
-        genre
+        genre,
+        actor,
+        director,
+        developer
       }
     });
 
@@ -91,6 +97,9 @@ export async function updateMediaAction(id: string, formData: FormData) {
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
   const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
+  const actor = formData.get('actor') ? formData.get('actor') as string : null;
+  const director = formData.get('director') ? formData.get('director') as string : null;
+  const developer = formData.get('developer') ? formData.get('developer') as string : null;
 
   if (!title) return { error: 'Title is required' };
 
@@ -104,7 +113,10 @@ export async function updateMediaAction(id: string, formData: FormData) {
         rating,
         isFavorite,
         toWatch,
-        genre
+        genre,
+        actor,
+        director,
+        developer
       }
     });
 
