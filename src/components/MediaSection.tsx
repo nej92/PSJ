@@ -12,7 +12,7 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
   const [filterGenre, setFilterGenre] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [filterText, setFilterText] = useState('');
-  const [activeTab, setActiveTab] = useState<'ALL' | 'TO_WATCH' | 'WATCHED' | 'FAVORITES'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'TO_WATCH' | 'FAVORITES'>('ALL');
 
   const uniqueGenres = Array.from(new Set(medias.map(m => m.genre).filter(Boolean))) as string[];
   const uniqueYears = Array.from(new Set(medias.map(m => m.releaseYear).filter(Boolean))).sort((a,b) => (b as number) - (a as number));
@@ -28,7 +28,6 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
       if (!normalizeText(haystack).includes(normalizedFilter)) return false;
     }
     if (activeTab === 'TO_WATCH' && !m.toWatch) return false;
-    if (activeTab === 'WATCHED' && m.toWatch) return false;
     if (activeTab === 'FAVORITES' && !m.isFavorite) return false;
     return true;
   });
@@ -56,7 +55,6 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
         <div className="tabs">
           <div className={`tab ${activeTab === 'ALL' ? 'active' : ''}`} onClick={() => setActiveTab('ALL')}>Todos</div>
           <div className={`tab ${activeTab === 'TO_WATCH' ? 'active' : ''}`} onClick={() => setActiveTab('TO_WATCH')}>Por ver</div>
-          <div className={`tab ${activeTab === 'WATCHED' ? 'active' : ''}`} onClick={() => setActiveTab('WATCHED')}>Vistos</div>
           <div className={`tab ${activeTab === 'FAVORITES' ? 'active' : ''}`} onClick={() => setActiveTab('FAVORITES')}>Favoritos</div>
         </div>
       )}
@@ -64,6 +62,7 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
       {defaultType === 'VIDEO_GAME' && (
         <div className="tabs">
           <div className={`tab ${activeTab === 'ALL' ? 'active' : ''}`} onClick={() => setActiveTab('ALL')}>Todos</div>
+          <div className={`tab ${activeTab === 'TO_WATCH' ? 'active' : ''}`} onClick={() => setActiveTab('TO_WATCH')}>Por jugar</div>
           <div className={`tab ${activeTab === 'FAVORITES' ? 'active' : ''}`} onClick={() => setActiveTab('FAVORITES')}>Favoritos</div>
         </div>
       )}

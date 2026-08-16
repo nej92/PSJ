@@ -9,9 +9,14 @@ import EditMediaModal from './EditMediaModal';
 export default function MediaCard({ media }: { media: Media }) {
   const [showEditModal, setShowEditModal] = useState(false);
 
+  const handleEditClick = () => {
+    setShowEditModal(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <>
-      <div className="media-card fade-in" onClick={() => setShowEditModal(true)} style={{cursor: 'pointer'}}>
+      <div className="media-card fade-in" onClick={handleEditClick} style={{cursor: 'pointer'}}>
         <div style={{position: 'relative'}}>
           <img 
             src={media.coverImage || 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=600&auto=format&fit=crop'} 

@@ -26,7 +26,10 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
   };
 
   const showActorFields = selectedType === 'MOVIE' || selectedType === 'TV_SERIES';
+  const showDirectorField = selectedType === 'MOVIE' || selectedType === 'TV_SERIES' || selectedType === 'ANIME';
   const showDeveloperField = selectedType === 'VIDEO_GAME';
+  const showToWatchField = selectedType === 'MOVIE' || selectedType === 'TV_SERIES' || selectedType === 'ANIME' || selectedType === 'VIDEO_GAME';
+  const toWatchLabel = selectedType === 'VIDEO_GAME' ? 'Por jugar' : 'Por ver';
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -77,16 +80,17 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
           </div>
 
           {showActorFields && (
-            <>
-              <div className="form-group">
-                <label className="form-label">Actor principal</label>
-                <input type="text" name="actor" className="form-input" placeholder="Nombre del actor" value={actor} onChange={e => setActor(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Director</label>
-                <input type="text" name="director" className="form-input" placeholder="Nombre del director" value={director} onChange={e => setDirector(e.target.value)} />
-              </div>
-            </>
+            <div className="form-group">
+              <label className="form-label">Actor principal</label>
+              <input type="text" name="actor" className="form-input" placeholder="Nombre del actor" value={actor} onChange={e => setActor(e.target.value)} />
+            </div>
+          )}
+
+          {showDirectorField && (
+            <div className="form-group">
+              <label className="form-label">Director</label>
+              <input type="text" name="director" className="form-input" placeholder="Nombre del director" value={director} onChange={e => setDirector(e.target.value)} />
+            </div>
           )}
 
           {showDeveloperField && (
@@ -102,10 +106,12 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
               <span>Marcar como favorito</span>
             </label>
 
-            <label className="checkbox-group">
-              <input type="checkbox" name="toWatch" />
-              <span title="Aplica para películas, series y animes">Por ver / Por jugar</span>
-            </label>
+            {showToWatchField && (
+              <label className="checkbox-group">
+                <input type="checkbox" name="toWatch" />
+                <span>{toWatchLabel}</span>
+              </label>
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary" style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}} disabled={loading}>

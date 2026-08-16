@@ -26,6 +26,7 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
   };
 
   const showActorFields = media.type === 'MOVIE' || media.type === 'TV_SERIES';
+  const showDirectorField = media.type === 'MOVIE' || media.type === 'TV_SERIES' || media.type === 'ANIME';
   const showDeveloperField = media.type === 'VIDEO_GAME';
 
   return (
@@ -66,16 +67,17 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
           </div>
 
           {showActorFields && (
-            <>
-              <div className="form-group">
-                <label className="form-label">Actor principal</label>
-                <input type="text" name="actor" className="form-input" placeholder="Nombre del actor" value={actor} onChange={e => setActor(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Director</label>
-                <input type="text" name="director" className="form-input" placeholder="Nombre del director" value={director} onChange={e => setDirector(e.target.value)} />
-              </div>
-            </>
+            <div className="form-group">
+              <label className="form-label">Actor principal</label>
+              <input type="text" name="actor" className="form-input" placeholder="Nombre del actor" value={actor} onChange={e => setActor(e.target.value)} />
+            </div>
+          )}
+
+          {showDirectorField && (
+            <div className="form-group">
+              <label className="form-label">Director</label>
+              <input type="text" name="director" className="form-input" placeholder="Nombre del director" value={director} onChange={e => setDirector(e.target.value)} />
+            </div>
           )}
 
           {showDeveloperField && (
@@ -91,10 +93,10 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
               <span>Marcar como favorito</span>
             </label>
 
-            {(media.type === 'MOVIE' || media.type === 'TV_SERIES' || media.type === 'ANIME') && (
+            {(media.type === 'MOVIE' || media.type === 'TV_SERIES' || media.type === 'ANIME' || media.type === 'VIDEO_GAME') && (
               <label className="checkbox-group">
                 <input type="checkbox" name="toWatch" defaultChecked={media.toWatch || false} />
-                <span>Por ver</span>
+                <span>{media.type === 'VIDEO_GAME' ? 'Por jugar' : 'Por ver'}</span>
               </label>
             )}
           </div>
