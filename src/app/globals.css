@@ -295,6 +295,8 @@ input, select, textarea {
 .media-actions {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
   margin-top: auto;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
@@ -315,6 +317,43 @@ input, select, textarea {
 
 .action-btn.active {
   color: var(--accent);
+}
+
+.movie-play-btn {
+  color: white;
+  font-weight: 700;
+}
+
+.movie-play-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.floating-message {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(90vw, 420px);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.floating-message button {
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+}
+
+.form-error {
+  color: #ff8080;
+  margin-top: 1rem;
 }
 
 /* Modal */

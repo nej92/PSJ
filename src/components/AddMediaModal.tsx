@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 
 export default function AddMediaModal({ defaultType, onClose }: { defaultType: string, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [selectedType, setSelectedType] = useState(defaultType);
   const [genre, setGenre] = useState('');
   const [actor, setActor] = useState('');
@@ -15,9 +16,17 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
-    await addMediaAction(null, formData);
-    setLoading(false);
-    onClose();
+    setError('');
+    try {
+      const result = await addMediaAction(null, formData);
+      if (result.error) setError(result.error);
+      else onClose();
+    } catch (error) {
+      console.error('Error al agregar contenido:', error);
+      setError('No se pudo contactar al servidor. Inténtalo nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +123,7 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
             )}
           </div>
 
+          {error && <p className="form-error" role="alert">{error}</p>}
           <button type="submit" className="btn btn-primary" style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}} disabled={loading}>
             {loading ? 'Agregando...' : 'Agregar'}
           </button>

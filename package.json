@@ -7,6 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "sync:movie-folders": "node --experimental-strip-types scripts/sync-movie-folders.mjs",
+    "test:movie-files": "node --experimental-strip-types --test tests/movie-files.test.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

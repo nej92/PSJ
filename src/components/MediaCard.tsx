@@ -1,13 +1,36 @@
 'use client';
 
-import { Star, Heart, Trash2, Eye, EyeOff, Edit2, Search } from 'lucide-react';
-import { deleteMediaAction, toggleFavoriteAction, toggleWatchAction } from '@/actions/media';
+import { Star, Heart, Trash2, Eye, EyeOff, Play, Search } from 'lucide-react';
+import { deleteMediaAction, playMovieAction, toggleFavoriteAction, toggleWatchAction } from '@/actions/media';
 import { Media } from '@prisma/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import EditMediaModal from './EditMediaModal';
 
 export default function MediaCard({ media }: { media: Media }) {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [playMessage, setPlayMessage] = useState('');
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!playMessage) return;
+    const timer = window.setTimeout(() => setPlayMessage(''), 5000);
+    return () => window.clearTimeout(timer);
+  }, [playMessage]);
+
+  const handlePlay = async () => {
+    setPlaying(true);
+    setPlayMessage('');
+    try {
+      const result = await playMovieAction(media.id);
+      if (result.error) setPlayMessage(result.error);
+    } catch (error) {
+      console.error('Error al reproducir la película:', error);
+      setPlayMessage('No se pudo contactar al servidor para reproducir la película.');
+    } finally {
+      setPlaying(false);
+    }
+  };
 
   const handleEditClick = () => {
     setShowEditModal(true);
@@ -40,6 +63,17 @@ export default function MediaCard({ media }: { media: Media }) {
             {media.developer && <span>Desarrollador: {media.developer}</span>}
           </div>
           <div className="media-actions" onClick={e => e.stopPropagation()}>
+            {media.type === 'MOVIE' && (
+              <button
+                type="button"
+                className="action-btn movie-play-btn"
+                onClick={handlePlay}
+                disabled={playing}
+                aria-label={`Ver ${media.title}`}
+              >
+                <Play size={16} /> {playing ? 'ABRIENDO...' : 'VER'}
+              </button>
+            )}
             <button 
               className={`action-btn ${media.isFavorite ? 'active' : ''}`}
               onClick={() => toggleFavoriteAction(media.id, !media.isFavorite)}
@@ -85,6 +119,13 @@ export default function MediaCard({ media }: { media: Media }) {
       </div>
 
       {showEditModal && <EditMediaModal media={media} onClose={() => setShowEditModal(false)} />}
+      {playMessage && createPortal(
+        <div className="floating-message" role="alert">
+          {playMessage}
+          <button type="button" onClick={() => setPlayMessage('')} aria-label="Cerrar mensaje">×</button>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

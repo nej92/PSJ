@@ -1,5 +1,30 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Películas locales
+
+La aplicación debe ejecutarse en el equipo Windows donde están `D:\peliculas` y
+`D:\BSPlayer\bsplayer.exe`: el botón **VER** abre BS.Player en ese equipo, no en
+otro dispositivo desde el que se acceda al navegador. No expongas esta
+instalación a usuarios que no deban poder iniciar el reproductor en el servidor.
+
+Al agregar una película se crea su carpeta dentro de `D:\peliculas`. Coloca allí
+el archivo de vídeo manualmente. Los caracteres que Windows no admite en un
+nombre de carpeta se reemplazan por `-`; los puntos y espacios finales se
+eliminan y los nombres reservados de Windows llevan un `-` inicial. Si hay
+varios vídeos, se abre el primero por orden alfabético. Se reconocen AVI, MKV,
+MP4, M4V, MOV, WMV, MPG, MPEG, WEBM, FLV, TS, M2TS, 3GP, VOB y DIVX.
+Si no hay vídeo, aparece «pelicula no disponible».
+
+Al cambiar el título se renombra la carpeta con sus archivos. Si la carpeta se
+comparte con otra película o la carpeta de destino ya existe, el cambio se
+rechaza para no mover ni sobrescribir archivos. Al eliminar una película no se
+elimina su carpeta.
+
+Para crear las carpetas de películas ya registradas, ejecuta en ese mismo equipo
+`npm run sync:movie-folders`. Este comando requiere Node.js 22.6 o posterior,
+acceso a la base de datos configurada y permisos de escritura en `D:\peliculas`.
+Se puede volver a ejecutar sin borrar archivos existentes.
+
 ## Getting Started
 
 First, run the development server:

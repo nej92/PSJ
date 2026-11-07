@@ -8,6 +8,7 @@ import { Media } from '@prisma/client';
 
 export default function EditMediaModal({ media, onClose }: { media: Media, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [genre, setGenre] = useState(media.genre || '');
   const [actor, setActor] = useState(media.actor || '');
   const [director, setDirector] = useState(media.director || '');
@@ -15,9 +16,17 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
-    await updateMediaAction(media.id, formData);
-    setLoading(false);
-    onClose();
+    setError('');
+    try {
+      const result = await updateMediaAction(media.id, formData);
+      if (result.error) setError(result.error);
+      else onClose();
+    } catch (error) {
+      console.error('Error al actualizar contenido:', error);
+      setError('No se pudo contactar al servidor. Inténtalo nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +110,7 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
             )}
           </div>
 
+          {error && <p className="form-error" role="alert">{error}</p>}
           <button type="submit" className="btn btn-primary" style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}} disabled={loading}>
             {loading ? 'Guardando...' : 'Guardar cambios'}
           </button>
