@@ -4,7 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { normalizeText } from '@/lib/normalize';
 import { revalidatePath } from 'next/cache';
-import { movieFiles, movieFolderKey } from '@/lib/movie-files';
+import { movieFolderKey } from '@/lib/movie-files';
+import { createMoviePlaybackToken } from '@/lib/movie-playback-token';
 
 async function checkFolderCollision(title: string, excludeId?: string) {
   const key = movieFolderKey(title);
@@ -38,7 +39,6 @@ export async function addMediaAction(prevState: unknown, formData: FormData) {
       if (await checkFolderCollision(title)) {
         return { error: 'Otro título utiliza el mismo nombre de carpeta. Elige un título diferente.' };
       }
-      await movieFiles.ensureDirectory(title);
     }
     await prisma.media.create({
       data: {
@@ -61,24 +61,26 @@ export async function addMediaAction(prevState: unknown, formData: FormData) {
     return { success: true };
   } catch (e) {
     console.error('Error al agregar contenido:', e);
-    return { error: 'No se pudo agregar el contenido ni preparar su carpeta. Revisa el título y los permisos.' };
+    return { error: 'No se pudo agregar el contenido. Revisa el título y vuelve a intentarlo.' };
   }
 }
 
-export async function playMovieAction(id: string) {
+export async function authorizeMoviePlaybackAction(id: string) {
   const session = await getSession();
   if (!session) return { error: 'Debes iniciar sesión para reproducir una película.' };
+  if (!process.env.MOVIE_PLAYBACK_SECRET || process.env.MOVIE_PLAYBACK_SECRET.length < 32) {
+    return { error: 'Configura MOVIE_PLAYBACK_SECRET en el servidor con al menos 32 caracteres.' };
+  }
   try {
     const movie = await prisma.media.findFirst({
       where: { id, userId: session.userId, type: 'MOVIE' },
-      select: { title: true },
+      select: { id: true },
     });
     if (!movie) return { error: 'No se encontró la película.' };
-    if (!await movieFiles.play(movie.title)) return { error: 'pelicula no disponible' };
-    return { success: true };
+    return { token: await createMoviePlaybackToken(movie.id, session.userId) };
   } catch (error) {
-    console.error('Error al reproducir la película:', error);
-    return { error: 'No se pudo abrir la película. Comprueba la carpeta y BS.Player.' };
+    console.error('Error al autorizar la película:', error);
+    return { error: 'No se pudo autorizar la reproducción. Comprueba la configuración del servidor.' };
   }
 }
 
@@ -137,8 +139,6 @@ export async function updateMediaAction(id: string, formData: FormData) {
 
   if (!title) return { error: 'Title is required' };
 
-  let renamed = false;
-  let oldTitle: string | undefined;
   try {
     const media = await prisma.media.findFirst({
       where: { id, userId: session.userId },
@@ -149,15 +149,6 @@ export async function updateMediaAction(id: string, formData: FormData) {
       if (await checkFolderCollision(title, id)) {
         return { error: 'Otro título utiliza el mismo nombre de carpeta. Elige un título diferente.' };
       }
-      const otherMovies = await prisma.media.findMany({
-        where: { type: 'MOVIE', id: { not: id } },
-        select: { title: true },
-      });
-      if (otherMovies.some(movie => movieFolderKey(movie.title) === movieFolderKey(media.title))) {
-        return { error: 'La carpeta está compartida con otra película y no puede renombrarse automáticamente.' };
-      }
-      oldTitle = media.title;
-      renamed = await movieFiles.renameDirectory(oldTitle, title);
     }
     const updated = await prisma.media.updateMany({
       where: { id, userId: session.userId },
@@ -178,17 +169,7 @@ export async function updateMediaAction(id: string, formData: FormData) {
     if (updated.count !== 1) throw new Error('No se encontró el contenido al guardarlo.');
   } catch (e) {
     console.error('Error al actualizar contenido:', e);
-    if (renamed && oldTitle) {
-      try {
-        await movieFiles.renameDirectory(title, oldTitle);
-      } catch (rollbackError) {
-        console.error('No se pudo restaurar la carpeta de la película:', rollbackError);
-        return { error: 'No se guardó el cambio y no se pudo restaurar la carpeta. Revisa las carpetas manualmente.' };
-      }
-    }
-    return { error: e instanceof Error && e.message.startsWith('Ya existe una carpeta')
-      ? e.message
-      : 'No se pudo guardar el contenido o renombrar su carpeta. Revisa el título y los permisos.' };
+    return { error: 'No se pudo guardar el contenido. Revisa el título y vuelve a intentarlo.' };
   }
   revalidatePath('/');
   return { success: true };

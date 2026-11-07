@@ -1,7 +1,7 @@
 'use client';
 
 import { Star, Heart, Trash2, Eye, EyeOff, Play, Search } from 'lucide-react';
-import { deleteMediaAction, playMovieAction, toggleFavoriteAction, toggleWatchAction } from '@/actions/media';
+import { authorizeMoviePlaybackAction, deleteMediaAction, toggleFavoriteAction, toggleWatchAction } from '@/actions/media';
 import { Media } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -22,8 +22,25 @@ export default function MediaCard({ media }: { media: Media }) {
     setPlaying(true);
     setPlayMessage('');
     try {
-      const result = await playMovieAction(media.id);
-      if (result.error) setPlayMessage(result.error);
+      const result = await authorizeMoviePlaybackAction(media.id);
+      if (result.error || !result.token) {
+        setPlayMessage(result.error || 'No se pudo autorizar la película.');
+        return;
+      }
+      let response: Response;
+      try {
+        response = await fetch('http://127.0.0.1:43125/play', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: result.token }),
+          signal: AbortSignal.timeout(20000),
+        });
+      } catch {
+        setPlayMessage('No se pudo conectar al servicio local. Inícialo en la PC y permite el acceso a la red local en el navegador.');
+        return;
+      }
+      const body: { error?: string } = await response.json();
+      if (!response.ok) setPlayMessage(body.error || 'No se pudo abrir la película.');
     } catch (error) {
       console.error('Error al reproducir la película:', error);
       setPlayMessage('No se pudo contactar al servidor para reproducir la película.');

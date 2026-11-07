@@ -2,12 +2,42 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Películas locales
 
-La aplicación debe ejecutarse en el equipo Windows donde están `D:\peliculas` y
-`D:\BSPlayer\bsplayer.exe`: el botón **VER** abre BS.Player en ese equipo, no en
-otro dispositivo desde el que se acceda al navegador. No expongas esta
-instalación a usuarios que no deban poder iniciar el reproductor en el servidor.
+La web alojada en Vercel no puede acceder directamente a los archivos ni ejecutar
+programas en la PC. Para usar **VER** desde `https://psj-psi.vercel.app`, hay que
+mantener un servicio local ejecutándose en la PC Windows donde están
+`D:\peliculas` y `D:\BSPlayer\bsplayer.exe`. El navegador también debe estar en
+esa PC: desde otro dispositivo se intentará contactar al servicio de ese otro
+dispositivo, no al de esta PC.
 
-Al agregar una película se crea su carpeta dentro de `D:\peliculas`. Coloca allí
+### Configuración
+
+1. En Vercel, configura `MOVIE_PLAYBACK_SECRET` como variable de entorno de
+   producción, con un valor aleatorio privado de al menos 32 caracteres.
+   Por ejemplo, genera uno localmente con
+   `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+   y cópialo en la configuración de Vercel. No lo compartas ni lo subas a Git.
+   Vuelve a desplegar la aplicación después de configurar la variable.
+2. En la PC, el archivo `.env` debe configurar `DATABASE_URL` apuntando a la
+   **misma base de datos** que utiliza Vercel. No hace falta copiar la clave de
+   reproducción de Vercel a la PC, salvo para ejecutar también la web local:
+   en ese caso configura `MOVIE_PLAYBACK_SECRET` en el `.env` local y reinicia
+   Next.js. El servicio local requiere Node.js 22.6 o posterior.
+3. En una terminal abierta en este proyecto ejecuta `npm run local:movies` y
+   déjala abierta. Inícialo antes de modificar títulos por primera vez, para
+   que registre la correspondencia con las carpetas existentes. Hay que volver
+   a iniciarlo después de reiniciar Windows.
+4. Abre el sitio de Vercel en esa PC y pulsa **VER**. Si el navegador solicita
+   permiso para acceder a la red local, concédelo y vuelve a intentarlo.
+
+El servicio escucha únicamente en `127.0.0.1:43125`, acepta peticiones del sitio
+indicado y de `http://localhost:3000`, y verifica cada autorización con el sitio
+correspondiente. No expongas el puerto ni compartas la clave de Vercel. Si el
+servicio está apagado o el navegador bloquea el acceso local, se muestra un
+mensaje; si hay un error de sincronización, consulta la terminal del servicio.
+
+Al agregar una película, el servicio crea su carpeta dentro de `D:\peliculas`.
+Si está apagado, la crea cuando vuelve a iniciarse; mientras está encendido,
+comprueba los cambios cada 30 segundos y antes de reproducir. Coloca allí
 el archivo de vídeo manualmente. Los caracteres que Windows no admite en un
 nombre de carpeta se reemplazan por `-`; los puntos y espacios finales se
 eliminan y los nombres reservados de Windows llevan un `-` inicial. Si hay
@@ -15,15 +45,19 @@ varios vídeos, se abre el primero por orden alfabético. Se reconocen AVI, MKV,
 MP4, M4V, MOV, WMV, MPG, MPEG, WEBM, FLV, TS, M2TS, 3GP, VOB y DIVX.
 Si no hay vídeo, aparece «pelicula no disponible».
 
-Al cambiar el título se renombra la carpeta con sus archivos. Si la carpeta se
-comparte con otra película o la carpeta de destino ya existe, el cambio se
-rechaza para no mover ni sobrescribir archivos. Al eliminar una película no se
-elimina su carpeta.
+Al cambiar el título se renombra la carpeta con sus archivos, incluso si el
+servicio estuvo apagado durante el cambio. Si la carpeta se comparte con otra
+película o la carpeta de destino ya existe, la sincronización se detiene y el
+servicio informa del conflicto sin sobrescribir archivos: resuélvelo antes de
+continuar. Al eliminar una película no se elimina su carpeta. El registro de
+correspondencias se guarda en `%LOCALAPPDATA%\PSJ\movie-folders.json`: consérvalo,
+ya que sin él no se pueden reconstruir automáticamente los títulos anteriores.
+Los cambios hechos antes de la primera ejecución del servicio tampoco pueden
+asociarse automáticamente con una carpeta de nombre anterior.
 
-Para crear las carpetas de películas ya registradas, ejecuta en ese mismo equipo
-`npm run sync:movie-folders`. Este comando requiere Node.js 22.6 o posterior,
-acceso a la base de datos configurada y permisos de escritura en `D:\peliculas`.
-Se puede volver a ejecutar sin borrar archivos existentes.
+Para preparar las carpetas de películas ya registradas sin iniciar el servicio
+puedes ejecutar `npm run sync:movie-folders`. Este comando no registra los
+nombres anteriores necesarios para sincronizar cambios de título posteriores.
 
 ## Getting Started
 
