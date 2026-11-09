@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Genre {
+  id       String @id @default(cuid())
+  name     String
+  category String // "SCREEN" or "GAME"
+
+  @@unique([category, name])
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique

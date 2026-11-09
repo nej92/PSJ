@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import MediaCard from '@/components/MediaCard';
 import Link from 'next/link';
 import { Film, Tv, Gamepad2, Wand2 } from 'lucide-react';
+import { getGenreCatalog } from '@/lib/genre-catalog';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,11 +12,11 @@ export default async function Home() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const recentMovies = await prisma.media.findMany({
+  const [recentMovies, genres] = await Promise.all([prisma.media.findMany({
     where: { userId: session.userId, type: 'MOVIE', videoAddedAt: { not: null } },
     orderBy: [{ videoAddedAt: 'desc' }, { createdAt: 'desc' }],
     take: 12
-  });
+  }), getGenreCatalog()]);
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId }
@@ -57,7 +58,7 @@ export default async function Home() {
         ) : (
           <div className="media-grid">
             {recentMovies.map(media => (
-              <MediaCard key={media.id} media={media} />
+              <MediaCard key={media.id} media={media} genres={genres} />
             ))}
           </div>
         )}

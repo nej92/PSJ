@@ -10,6 +10,7 @@
     "sync:movie-folders": "node --experimental-strip-types scripts/sync-movie-folders.mjs",
     "local:movies": "node --experimental-strip-types scripts/local-movie-service.mjs",
     "test:movie-files": "node --experimental-strip-types --test tests/movie-files.test.mjs tests/movie-folder-sync.test.mjs tests/movie-service-http.test.mjs tests/movie-playback-token.test.mjs",
+    "test:genres": "node --experimental-strip-types --test tests/genres.test.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

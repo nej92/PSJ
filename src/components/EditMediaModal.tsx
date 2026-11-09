@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { updateMediaAction } from '@/actions/media';
-import { normalizeText } from '@/lib/normalize';
+import { genresForType, type GenreCatalog } from '@/lib/genres';
+import GenreSelect from './GenreSelect';
 import { X } from 'lucide-react';
 import { Media } from '@prisma/client';
 
-export default function EditMediaModal({ media, onClose }: { media: Media, onClose: () => void }) {
+export default function EditMediaModal({ media, genres, onClose }: { media: Media, genres: GenreCatalog, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [genre, setGenre] = useState(media.genre || '');
   const [actor, setActor] = useState(media.actor || '');
   const [director, setDirector] = useState(media.director || '');
   const [developer, setDeveloper] = useState(media.developer || '');
@@ -28,11 +28,6 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
       setLoading(false);
     }
   }
-
-  const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const normalized = normalizeText(e.target.value);
-    setGenre(normalized);
-  };
 
   const showActorFields = media.type === 'MOVIE' || media.type === 'TV_SERIES';
   const showDirectorField = media.type === 'MOVIE' || media.type === 'TV_SERIES' || media.type === 'ANIME';
@@ -65,10 +60,7 @@ export default function EditMediaModal({ media, onClose }: { media: Media, onClo
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Género</label>
-            <input type="text" name="genre" className="form-input" placeholder="Ej. acción, drama, RPG" value={genre} onChange={handleGenreChange} />
-          </div>
+          <GenreSelect genres={genresForType(genres, media.type)} initialValue={media.genre} />
 
           <div className="form-group">
             <label className="form-label">URL de imagen</label>

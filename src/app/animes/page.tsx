@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import MediaSection from '@/components/MediaSection';
+import { getGenreCatalog } from '@/lib/genre-catalog';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,10 +10,10 @@ export default async function AnimesPage() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const animes = await prisma.media.findMany({
+  const [animes, genres] = await Promise.all([prisma.media.findMany({
     where: { userId: session.userId, type: 'ANIME' },
     orderBy: { createdAt: 'desc' }
-  });
+  }), getGenreCatalog()]);
 
-  return <MediaSection title="Mis Animes" defaultType="ANIME" medias={animes} />;
+  return <MediaSection title="Mis Animes" defaultType="ANIME" medias={animes} genres={genres} />;
 }

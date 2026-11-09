@@ -6,8 +6,9 @@ import { Media } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import EditMediaModal from './EditMediaModal';
+import type { GenreCatalog } from '@/lib/genres';
 
-export default function MediaCard({ media }: { media: Media }) {
+export default function MediaCard({ media, genres }: { media: Media, genres: GenreCatalog }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [playMessage, setPlayMessage] = useState('');
   const [playing, setPlaying] = useState(false);
@@ -135,7 +136,7 @@ export default function MediaCard({ media }: { media: Media }) {
         </div>
       </div>
 
-      {showEditModal && <EditMediaModal media={media} onClose={() => setShowEditModal(false)} />}
+      {showEditModal && <EditMediaModal media={media} genres={genres} onClose={() => setShowEditModal(false)} />}
       {playMessage && createPortal(
         <div className="floating-message" role="alert">
           {playMessage}

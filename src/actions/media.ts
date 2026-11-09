@@ -2,10 +2,17 @@
 
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { normalizeText } from '@/lib/normalize';
 import { revalidatePath } from 'next/cache';
 import { movieFolderKey } from '@/lib/movie-files';
 import { createMoviePlaybackToken } from '@/lib/movie-playback-token';
+import { genreCategory, resolveSelectedGenres } from '@/lib/genres';
+
+async function selectedGenres(formData: FormData, type: string, previous: string | null = null) {
+  const category = genreCategory(type);
+  if (!category) return { error: 'Tipo de contenido inválido.' };
+  const catalog = await prisma.genre.findMany({ where: { category }, select: { name: true } });
+  return resolveSelectedGenres(formData.getAll('genre'), catalog.map(genre => genre.name), previous);
+}
 
 async function checkFolderCollision(title: string, excludeId?: string) {
   const key = movieFolderKey(title);
@@ -27,7 +34,6 @@ export async function addMediaAction(prevState: unknown, formData: FormData) {
   const rating = formData.get('rating') ? parseInt(formData.get('rating') as string, 10) : null;
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
-  const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
   const actor = formData.get('actor') ? formData.get('actor') as string : null;
   const director = formData.get('director') ? formData.get('director') as string : null;
   const developer = formData.get('developer') ? formData.get('developer') as string : null;
@@ -35,6 +41,8 @@ export async function addMediaAction(prevState: unknown, formData: FormData) {
   if (!title || !type) return { error: 'Title and type are required' };
 
   try {
+    const genres = await selectedGenres(formData, type);
+    if (genres.error) return { error: genres.error };
     if (type === 'MOVIE') {
       if (await checkFolderCollision(title)) {
         return { error: 'Otro título utiliza el mismo nombre de carpeta. Elige un título diferente.' };
@@ -50,14 +58,14 @@ export async function addMediaAction(prevState: unknown, formData: FormData) {
         rating,
         isFavorite,
         toWatch,
-        genre,
+        genre: genres.genre,
         actor,
         director,
         developer
       }
     });
 
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (e) {
     console.error('Error al agregar contenido:', e);
@@ -132,7 +140,6 @@ export async function updateMediaAction(id: string, formData: FormData) {
   const rating = formData.get('rating') ? parseInt(formData.get('rating') as string, 10) : null;
   const isFavorite = formData.get('isFavorite') === 'on';
   const toWatch = formData.get('toWatch') === 'on';
-  const genre = formData.get('genre') ? normalizeText(formData.get('genre') as string) : null;
   const actor = formData.get('actor') ? formData.get('actor') as string : null;
   const director = formData.get('director') ? formData.get('director') as string : null;
   const developer = formData.get('developer') ? formData.get('developer') as string : null;
@@ -142,9 +149,11 @@ export async function updateMediaAction(id: string, formData: FormData) {
   try {
     const media = await prisma.media.findFirst({
       where: { id, userId: session.userId },
-      select: { title: true, type: true },
+      select: { title: true, type: true, genre: true },
     });
     if (!media) return { error: 'No se encontró el contenido.' };
+    const genres = await selectedGenres(formData, media.type, media.genre);
+    if (genres.error) return { error: genres.error };
     if (media.type === 'MOVIE' && media.title !== title) {
       if (await checkFolderCollision(title, id)) {
         return { error: 'Otro título utiliza el mismo nombre de carpeta. Elige un título diferente.' };
@@ -159,7 +168,7 @@ export async function updateMediaAction(id: string, formData: FormData) {
         rating,
         isFavorite,
         toWatch,
-        genre,
+        genre: genres.genre,
         actor,
         director,
         developer
@@ -171,6 +180,6 @@ export async function updateMediaAction(id: string, formData: FormData) {
     console.error('Error al actualizar contenido:', e);
     return { error: 'No se pudo guardar el contenido. Revisa el título y vuelve a intentarlo.' };
   }
-  revalidatePath('/');
+  revalidatePath('/', 'layout');
   return { success: true };
 }

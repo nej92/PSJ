@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { addMediaAction } from '@/actions/media';
-import { normalizeText } from '@/lib/normalize';
+import { genresForType, type GenreCatalog } from '@/lib/genres';
+import GenreSelect from './GenreSelect';
 import { X } from 'lucide-react';
 
-export default function AddMediaModal({ defaultType, onClose }: { defaultType: string, onClose: () => void }) {
+export default function AddMediaModal({ defaultType, genres, onClose }: { defaultType: string, genres: GenreCatalog, onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedType, setSelectedType] = useState(defaultType);
-  const [genre, setGenre] = useState('');
   const [actor, setActor] = useState('');
   const [director, setDirector] = useState('');
   const [developer, setDeveloper] = useState('');
@@ -28,11 +28,6 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
       setLoading(false);
     }
   }
-
-  const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const normalized = normalizeText(e.target.value);
-    setGenre(normalized);
-  };
 
   const showActorFields = selectedType === 'MOVIE' || selectedType === 'TV_SERIES';
   const showDirectorField = selectedType === 'MOVIE' || selectedType === 'TV_SERIES' || selectedType === 'ANIME';
@@ -78,10 +73,7 @@ export default function AddMediaModal({ defaultType, onClose }: { defaultType: s
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Género</label>
-            <input type="text" name="genre" className="form-input" placeholder="Ej. acción, drama, RPG" value={genre} onChange={handleGenreChange} />
-          </div>
+          <GenreSelect key={selectedType === 'VIDEO_GAME' ? 'game' : 'screen'} genres={genresForType(genres, selectedType)} />
 
           <div className="form-group">
             <label className="form-label">URL de imagen</label>

@@ -67,6 +67,14 @@ Para preparar las carpetas de películas ya registradas sin iniciar el servicio
 puedes ejecutar `npm run sync:movie-folders`. Este comando no registra los
 nombres anteriores necesarios para sincronizar cambios de título posteriores.
 
+## Géneros
+
+Los filtros y formularios usan el catálogo de géneros de la base de datos:
+animes, películas y series comparten una lista, y videojuegos tiene otra. Se
+pueden seleccionar varios géneros. Los valores anteriores que no pertenecen al
+catálogo se conservan y aparecen marcados al editar el contenido; se pueden
+quitar, pero no asignar a otros contenidos.
+
 ## Getting Started
 
 First, run the development server:

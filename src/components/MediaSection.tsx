@@ -6,19 +6,20 @@ import AddMediaModal from '@/components/AddMediaModal';
 import { Media } from '@prisma/client';
 import { Plus } from 'lucide-react';
 import { normalizeText } from '@/lib/normalize';
+import { genresForType, hasGenre, type GenreCatalog } from '@/lib/genres';
 
-export default function MediaSection({ title, defaultType, medias }: { title: string, defaultType: string, medias: Media[] }) {
+export default function MediaSection({ title, defaultType, medias, genres }: { title: string, defaultType: string, medias: Media[], genres: GenreCatalog }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [filterGenre, setFilterGenre] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [filterText, setFilterText] = useState('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'TO_WATCH' | 'FAVORITES'>('ALL');
 
-  const uniqueGenres = Array.from(new Set(medias.map(m => m.genre).filter(Boolean))) as string[];
+  const availableGenres = genresForType(genres, defaultType);
   const uniqueYears = Array.from(new Set(medias.map(m => m.releaseYear).filter(Boolean))).sort((a,b) => (b as number) - (a as number));
 
   const filteredMedia = medias.filter(m => {
-    if (filterGenre && m.genre !== filterGenre) return false;
+    if (filterGenre && !hasGenre(m.genre, filterGenre)) return false;
     if (filterYear && m.releaseYear?.toString() !== filterYear) return false;
     if (filterText) {
       const normalizedFilter = normalizeText(filterText);
@@ -76,7 +77,7 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
           onChange={(e) => setFilterGenre(e.target.value)}
         >
           <option value="">Todos los géneros</option>
-          {uniqueGenres.map(g => <option key={g} value={g}>{g}</option>)}
+          {availableGenres.map(g => <option key={g} value={g}>{g}</option>)}
         </select>
         
         <select 
@@ -97,12 +98,12 @@ export default function MediaSection({ title, defaultType, medias }: { title: st
       ) : (
         <div className="media-grid">
           {filteredMedia.map(media => (
-            <MediaCard key={media.id} media={media} />
+            <MediaCard key={media.id} media={media} genres={genres} />
           ))}
         </div>
       )}
 
-      {showAddModal && <AddMediaModal defaultType={defaultType} onClose={() => setShowAddModal(false)} />}
+      {showAddModal && <AddMediaModal defaultType={defaultType} genres={genres} onClose={() => setShowAddModal(false)} />}
     </div>
   );
 }
