@@ -18,10 +18,19 @@ function synchronize() {
   const task = currentSync.then(async () => {
     const movies = await prisma.media.findMany({
       where: { type: 'MOVIE' },
-      select: { id: true, title: true },
+      select: { id: true, title: true, videoAddedAt: true },
       orderBy: { id: 'asc' },
     });
     await sync.sync(movies);
+    for (const movie of movies) {
+      const videoAddedAt = await movieFiles.latestVideoAddedAt(movie.title);
+      if (movie.videoAddedAt?.getTime() !== videoAddedAt?.getTime()) {
+        await prisma.media.update({
+          where: { id: movie.id },
+          data: { videoAddedAt },
+        });
+      }
+    }
   });
   currentSync = task.catch(() => {});
   return task;

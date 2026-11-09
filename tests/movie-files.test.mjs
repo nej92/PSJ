@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -27,6 +27,23 @@ test('directories, missing videos, rename and player errors', async () => {
     await mkdir(path.join(root, 'Existing'));
     await assert.rejects(files.renameDirectory('New title', 'Existing'), /Ya existe una carpeta/);
     assert.equal(await readFile(path.join(root, 'New title', 'movie.MKV'), 'utf8'), 'video');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('finds the newest video file creation date and ignores non-video files', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'movie-video-date-'));
+  try {
+    const files = new MovieFiles(root, process.execPath);
+    await files.ensureDirectory('Test');
+    await writeFile(path.join(root, 'Test', 'notes.txt'), 'not a video');
+    assert.equal(await files.latestVideoAddedAt('Test'), null);
+    await writeFile(path.join(root, 'Test', '01.mp4'), 'video');
+    await new Promise(resolve => setTimeout(resolve, 20));
+    await writeFile(path.join(root, 'Test', '02.MKV'), 'video');
+    const latestVideo = await stat(path.join(root, 'Test', '02.MKV'));
+    assert.equal((await files.latestVideoAddedAt('Test'))?.getTime(), latestVideo.birthtime.getTime());
   } finally {
     await rm(root, { recursive: true, force: true });
   }

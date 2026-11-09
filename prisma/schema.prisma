@@ -18,22 +18,23 @@ model User {
 }
 
 model Media {
-  id          String   @id @default(cuid())
-  type        String   // "MOVIE", "TV_SERIES", "VIDEO_GAME", "ANIME"
-  title       String
-  releaseYear Int?
-  coverImage  String?
-  rating      Int?     // 1-5
-  isFavorite  Boolean  @default(false)
-  toWatch     Boolean? // applicable for movies/series/anime
-  genre       String?
-  actor       String?
-  director    String?
-  developer   String?
-  
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(cuid())
+  type         String // "MOVIE", "TV_SERIES", "VIDEO_GAME", "ANIME"
+  title        String
+  releaseYear  Int?
+  coverImage   String?
+  rating       Int? // 1-5
+  isFavorite   Boolean   @default(false)
+  toWatch      Boolean? // applicable for movies/series/anime
+  genre        String?
+  actor        String?
+  director     String?
+  developer    String?
+  videoAddedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { lstat, mkdir, readdir, rename } from 'node:fs/promises';
+import { lstat, mkdir, readdir, rename, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const VIDEO_EXTENSIONS = new Set([
@@ -49,6 +49,23 @@ export class MovieFiles {
   async ensureDirectory(title: string): Promise<void> {
     await ensureRealDirectory(this.root);
     await ensureRealDirectory(this.directory(title));
+  }
+
+  async latestVideoAddedAt(title: string): Promise<Date | null> {
+    await this.ensureDirectory(title);
+    const directory = this.directory(title);
+    const files = await readdir(directory, { withFileTypes: true });
+    const videos = files.filter(file =>
+      file.isFile() && VIDEO_EXTENSIONS.has(path.extname(file.name).toLowerCase())
+    );
+    if (videos.length === 0) return null;
+
+    const addedAt = await Promise.all(videos.map(async file =>
+      (await stat(path.join(directory, file.name))).birthtime
+    ));
+    return addedAt.reduce((latest, candidate) =>
+      candidate > latest ? candidate : latest
+    );
   }
 
   async renameDirectory(oldTitle: string, newTitle: string): Promise<boolean> {

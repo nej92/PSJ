@@ -11,9 +11,9 @@ export default async function Home() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const recentMedia = await prisma.media.findMany({
-    where: { userId: session.userId },
-    orderBy: { createdAt: 'desc' },
+  const recentMovies = await prisma.media.findMany({
+    where: { userId: session.userId, type: 'MOVIE', videoAddedAt: { not: null } },
+    orderBy: [{ videoAddedAt: 'desc' }, { createdAt: 'desc' }],
     take: 12
   });
 
@@ -48,15 +48,15 @@ export default async function Home() {
       </div>
 
       <div>
-        <h2 className="section-title" style={{marginBottom: '1.5rem'}}>Recientemente agregado</h2>
-        {recentMedia.length === 0 ? (
+        <h2 className="section-title" style={{marginBottom: '1.5rem'}}>Películas agregadas recientemente para ver</h2>
+        {recentMovies.length === 0 ? (
           <div style={{textAlign: 'center', padding: '3rem', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-            <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>Aún no has agregado contenido.</p>
-            <Link href="/movies" className="btn btn-primary">Comienza agregando contenido</Link>
+            <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>Aún no hay películas con archivos de vídeo disponibles.</p>
+            <Link href="/movies" className="btn btn-primary">Ver mis películas</Link>
           </div>
         ) : (
           <div className="media-grid">
-            {recentMedia.map(media => (
+            {recentMovies.map(media => (
               <MediaCard key={media.id} media={media} />
             ))}
           </div>

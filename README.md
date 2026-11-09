@@ -22,11 +22,16 @@ dispositivo, no al de esta PC.
    reproducción de Vercel a la PC, salvo para ejecutar también la web local:
    en ese caso configura `MOVIE_PLAYBACK_SECRET` en el `.env` local y reinicia
    Next.js. El servicio local requiere Node.js 22.6 o posterior.
-3. En una terminal abierta en este proyecto ejecuta `npm run local:movies` y
+3. Antes de iniciar la web y el servicio local, ejecuta `npx prisma migrate deploy`
+   para aplicar las migraciones a la base de datos configurada y
+   `npx prisma generate` para actualizar el cliente Prisma. Si ya están en
+   ejecución, detén ambos procesos antes de generar el cliente y vuelve a
+   iniciarlos después.
+4. En una terminal abierta en este proyecto ejecuta `npm run local:movies` y
    déjala abierta. Inícialo antes de modificar títulos por primera vez, para
    que registre la correspondencia con las carpetas existentes. Hay que volver
    a iniciarlo después de reiniciar Windows.
-4. Abre el sitio de Vercel en esa PC y pulsa **VER**. Si el navegador solicita
+5. Abre el sitio de Vercel en esa PC y pulsa **VER**. Si el navegador solicita
    permiso para acceder a la red local, concédelo y vuelve a intentarlo.
 
 El servicio escucha únicamente en `127.0.0.1:43125`, acepta peticiones del sitio
@@ -37,7 +42,10 @@ mensaje; si hay un error de sincronización, consulta la terminal del servicio.
 
 Al agregar una película, el servicio crea su carpeta dentro de `D:\peliculas`.
 Si está apagado, la crea cuando vuelve a iniciarse; mientras está encendido,
-comprueba los cambios cada 30 segundos y antes de reproducir. Coloca allí
+comprueba los cambios cada 30 segundos y antes de reproducir. El inicio muestra
+hasta 12 películas ordenadas por la fecha de creación más reciente de sus
+archivos de vídeo; esa fecha se sincroniza con la base de datos mediante el
+servicio local. Coloca allí
 el archivo de vídeo manualmente. Los caracteres que Windows no admite en un
 nombre de carpeta se reemplazan por `-`; los puntos y espacios finales se
 eliminan y los nombres reservados de Windows llevan un `-` inicial. Si hay
